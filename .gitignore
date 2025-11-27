@@ -1,0 +1,4 @@
+*.sql
+.env
+*.log
+peshkatari_db (2).sql
