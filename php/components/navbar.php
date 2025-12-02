@@ -26,14 +26,15 @@
         if (isset($_SESSION['userusename'])) {
         ?>
             <div class="custom-select-wrapper">
-                <div class="custom-select">
-                    <span class="custom-select-trigger">Account</span>
-                    <div class="custom-options">
-                        <a href="<?php echo $baseURL; ?>dashboard.php" class="custom-option">Profile</a>
-                        <a href="<?php echo $baseURL; ?>wishlist.php" class="custom-option">wishlist</a>
-                        <a href="<?php echo $baseURL; ?>checkorders.php" class="custom-option">check Order</a>
-                        <form method="post" class="custom-option">
-                            <button name="logout">Logout</button>
+                <div class="custom-select" tabindex="0" role="menu">
+                    <span class="custom-select-trigger" aria-expanded="false" aria-controls="account-options">Account</span>
+                    <div class="custom-options" id="account-options">
+                        <a href="<?php echo $baseURL; ?>dashboard.php" class="custom-option" role="menuitem">Profile</a>
+                        <a href="<?php echo $baseURL; ?>wishlist.php" class="custom-option" role="menuitem">Wishlist</a>
+                        <a href="<?php echo $baseURL; ?>checkorders.php" class="custom-option" role="menuitem">Check Order</a>
+
+                        <form method="post" class="custom-option" role="none">
+                            <button name="logout" type="submit" role="menuitem">Logout</button>
                         </form>
                     </div>
                 </div>

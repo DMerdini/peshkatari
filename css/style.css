@@ -1,5 +1,14 @@
 @import url("https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap");
+:root {
+  --primary-color: #182246; /* Dark Blue */
+  --text-color-light: rgb(241, 241, 241); /* Off-white */
+  --accent-hover: #fff;
+  --transition-speed: 250ms;
 
+  --dropdown-link-color: #333; /* Dark text for inside the white dropdown */
+  --dropdown-background: #fff;
+  --dropdown-border: #b5b5b5;
+}
 * {
   font-family: "Roboto", sans-serif;
 }
@@ -10,42 +19,175 @@
 }
 nav {
   padding: 10px 0;
-  background-color: #182246;
-  color: rgb(241, 241, 241);
+  background-color: var(--primary-color);
+  color: var(--text-color-light);
 }
-nav > * {
+
+/* Container for width and centering */
+.container {
+  max-width: 1200px; /* Standardizing container width */
+  margin: 0 auto;
+  padding: 0 15px; /* Add some padding on the sides */
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
-nav * {
-  color: white;
+
+nav a,
+nav button,
+.custom-select-trigger {
+  color: var(--text-color-light);
   text-decoration: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
 }
-.toplogo:hover > svg {
-  rotate: 6deg;
+
+/* Logo Styling */
+.toplogo {
+  display: flex;
+  align-items: center;
+  gap: 8px; /* Space between SVG and H3 */
 }
-.toplogo > svg {
-  fill: rgb(241, 241, 241);
-  transition: all 250ms;
+
+.toplogo h3 {
+  font-size: 20px;
+  margin: 0; /* Remove default margin */
 }
+
+.toplogo svg {
+  fill: var(--text-color-light);
+  height: 30px;
+  width: 30px;
+  transition: transform var(--transition-speed); /* Use 'transform' instead of 'rotate' for better compatibility */
+}
+
+.toplogo:hover svg {
+  transform: rotate(6deg);
+}
+
+/* Navigation List (Main Menu) */
 .navul {
   list-style-type: none;
   display: flex;
   gap: 40px;
   align-items: center;
+  padding: 0;
+  margin: 0;
 }
+
 .navli {
   padding: 4px 6px 2px 6px;
   border-bottom: 1px solid transparent;
-  transition: all 350ms;
+  transition: border-bottom-color 350ms;
 }
+
 .navli:hover {
-  border-bottom-color: #fff;
+  border-bottom-color: var(--accent-hover);
 }
+
 .navli > a {
-  text-decoration: none;
   text-transform: capitalize;
+}
+
+/* Account Dropdown Styling */
+.custom-select-wrapper {
+  position: relative;
+}
+
+.custom-select {
+  position: relative;
+  z-index: 10; /* Ensure dropdown is above other content */
+}
+
+.custom-select-trigger {
+  padding: 4px 6px 2px 6px;
+  border-bottom: 1px solid transparent;
+  display: block; /* Make it block to take padding */
+  transition: border-bottom-color 350ms;
+  text-transform: capitalize;
+}
+
+.custom-select:hover .custom-select-trigger,
+.custom-select.opened .custom-select-trigger {
+  border-bottom-color: var(--accent-hover);
+}
+
+.custom-options {
+  position: absolute;
+  top: 100%; /* Position below the trigger */
+  right: 0;
+  background-color: var(--primary-color);
+  border: 1px solid var(--text-color-light);
+  border-top: none;
+  min-width: 150px;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 350ms ease-out, border-color 350ms;
+}
+
+.custom-select.opened .custom-options {
+  max-height: 200px; /* Large enough to show all items */
+  border-color: var(--accent-hover);
+}
+
+.custom-option {
+  display: block;
+  padding: 8px 15px;
+  text-transform: capitalize;
+}
+
+.custom-option:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.custom-option form {
+  margin: 0;
+}
+
+.custom-option button {
+  width: 100%;
+  text-align: left;
+  display: block;
+  padding: 0;
+  color: var(--text-color-light);
+  text-transform: capitalize;
+}
+
+/* Login Button Styling */
+.loginopt {
+  padding: 4px 12px;
+  border: 1px solid var(--text-color-light);
+  border-radius: 4px;
+  transition: background-color 350ms, color 350ms;
+  text-transform: capitalize;
+}
+
+.loginopt:hover {
+  background-color: var(--text-color-light);
+  color: var(--primary-color);
+}
+
+/* 📱 Media Query for Mobile Responsiveness */
+@media (max-width: 768px) {
+  .container {
+    flex-wrap: wrap; /* Allow wrapping */
+  }
+
+  .navul {
+    width: 100%; /* Take up full width */
+    flex-direction: column; /* Stack menu items vertically */
+    gap: 10px;
+    margin-top: 10px;
+    align-items: flex-start; /* Align stacked items to the left */
+    display: none; /* Hide the menu by default for a hamburger menu approach */
+  }
+
+  /* You would need JavaScript to toggle .navul's display property (or use a dedicated mobile menu button) */
+  .nav-menu-open .navul {
+    display: flex;
+  }
 }
 .productgrid {
   display: grid;
@@ -370,38 +512,300 @@ body {
   box-shadow: inset 0 0 0 2px #a7e245;
   transform: translateX(30%);
 }
+/* --- Base Footer Styling --- */
 footer {
-  background-color: #182246;
-  color: white;
-  padding: 40px 0;
-
-  margin: auto;
+  background-color: var(--primary-color);
+  color: var(--text-color-light);
+  padding-top: 40px;
+  font-size: 16px;
 }
 
-footer > *,
-.scialicons {
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 15px;
+}
+
+/* Main Footer Content Grid */
+.footer-content {
+  display: grid;
+  /* Define 3 columns with equal width or adjust as needed */
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 40px;
+  align-items: flex-start; /* Aligns the start of the content in each column */
+  padding-bottom: 40px;
+}
+
+.footer-col {
+  /* Base style for columns */
+}
+
+/* Headings */
+.footer-heading {
+  font-size: 1.2rem;
+  margin-bottom: 15px;
+  text-transform: uppercase;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 5px;
+}
+
+/* Links and Text */
+footer a {
+  color: var(--text-color-light);
+  text-decoration: none;
+  transition: color 250ms;
+}
+
+footer a:hover {
+  color: var(--link-hover-color);
+}
+
+.tagline {
+  font-size: 0.9rem;
+  margin-top: 10px;
+  opacity: 0.8;
+}
+
+/* Logo Styling */
+.footer-logo {
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-}
-.footerlogoframe {
-}
-.footernav {
-}
-.footersocial {
-}
-.socialicon > svg {
-  fill: white;
-}
-.center {
-  position: absolute;
-  display: inline-block;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  align-items: center;
+  gap: 8px;
+  font-size: 1.5rem;
+  font-weight: bold;
 }
 
+.footer-logo svg path {
+  /* IMPORTANT: Fix the SVG fill color to white */
+  fill: var(--text-color-light) !important;
+}
+
+/* Navigation List */
+.footer-nav-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footer-nav-list li {
+  margin-bottom: 8px;
+}
+
+/* Social Icons */
+.social-icons {
+  display: flex;
+  gap: 15px;
+  /* Use 'scialicons' class from your original code, renamed to 'social-icons' */
+}
+
+.social-icon {
+  display: block;
+  width: 30px;
+  height: 30px;
+  padding: 5px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.1);
+  transition: background-color 250ms;
+}
+
+.social-icon:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+.social-icon svg path,
+.social-icon svg circle {
+  /* IMPORTANT: Fix the inner parts of the social icons to white */
+  stroke: var(--text-color-light) !important;
+  fill: var(--text-color-light) !important;
+}
+
+/* Copyright Row */
+.footer-separator {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  width: 100%;
+}
+
+.copyright-row {
+  text-align: center;
+  padding: 15px 15px;
+  font-size: 0.85rem;
+}
+
+/* --- Mobile Responsiveness (Stacks content below 768px) --- */
+@media (max-width: 768px) {
+  .footer-content {
+    /* Change from 3 columns to 1 column */
+    grid-template-columns: 1fr;
+    gap: 30px; /* Reduce gap when stacked */
+    text-align: center; /* Center content when stacked */
+  }
+
+  .footer-col {
+    /* Center column content for mobile */
+    margin: 0 auto;
+  }
+
+  .logo-column,
+  .nav-column,
+  .social-column {
+    /* Ensure columns take up full width on small screen */
+    width: 100%;
+  }
+
+  .footer-logo {
+    justify-content: center; /* Center logo group */
+  }
+
+  .social-icons {
+    justify-content: center; /* Center social icons group */
+  }
+
+  .footer-nav-list {
+    /* Revert to inline links or keep vertical */
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px 20px;
+  }
+
+  .footer-nav-list li {
+    margin-bottom: 0; /* Remove vertical margin from list items */
+  }
+}
+
+/* Removed the unused .center class */
+.center {
+  /* Removed the original .center class as it conflicts with footer layout */
+}
+/* 1. Wrapper and Base */
 .custom-select-wrapper {
+  position: relative;
+  /* Keeping display inline-block, remove user-select as it's often inherited */
+}
+
+.custom-select {
+  position: relative;
+  z-index: 10; /* Z-index is important for dropdowns */
+}
+
+/* 2. Trigger (Account Button) */
+.custom-select-trigger {
+  /* Using the original navbar link styles for consistency */
+  padding: 4px 25px 2px 6px; /* Added right padding for the arrow */
+  border-bottom: 1px solid transparent;
+  display: block;
+  color: var(--text-color-light);
+  font-size: 16px; /* Match standard nav links */
+  line-height: normal;
+  cursor: pointer;
+  transition: all var(--transition-speed);
+}
+
+.custom-select:hover .custom-select-trigger,
+.custom-select.opened .custom-select-trigger {
+  border-bottom-color: var(--accent-hover);
+}
+
+/* Trigger Arrow Styling */
+.custom-select-trigger:after {
+  position: absolute;
+  content: "";
+  width: 8px;
+  height: 8px;
+  top: 50%;
+  right: 8px; /* Position closer to the text */
+  margin-top: -5px;
+  border-bottom: 2px solid var(--text-color-light); /* Dark theme arrow */
+  border-right: 2px solid var(--text-color-light); /* Dark theme arrow */
+  transform: rotate(45deg);
+  transition: transform 0.4s, margin 0.4s;
+}
+
+.custom-select.opened .custom-select-trigger:after {
+  /* Rotate up when opened */
+  margin-top: -1px;
+  transform: rotate(-135deg);
+}
+
+/* 3. Dropdown Options Container */
+.custom-options {
+  position: absolute;
+  top: 100%;
+  right: 0; /* Align dropdown to the right edge of the trigger */
+  min-width: 150px;
+  margin-top: 5px; /* Small gap below the trigger */
+  border: 1px solid var(--dropdown-border);
+  border-radius: 4px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  background: var(--dropdown-background);
+  z-index: 99;
+
+  /* Transition/Visibility Logic */
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(10px);
+  transition: all 0.3s ease-out;
+}
+
+.custom-select.opened .custom-options {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: all;
+  background-color: var(--dropdown-background);
+  transform: translateY(0);
+}
+
+/* Removed the .custom-options:before (triangle) as it often looks bulky */
+/* If you want the triangle, you need to adjust its color to white/light */
+
+/* 4. Individual Option Link/Button */
+.custom-option {
+  display: block;
+  padding: 8px 15px; /* Simplified padding */
+  border-bottom: 1px solid #eee; /* Lighter separator */
+  font-size: 16px;
+  font-weight: normal;
+  color: var(
+    --dropdown-link-color
+  ); /* Dark text for readability on white background */
+  line-height: normal;
+  cursor: pointer;
+  text-decoration: none; /* Ensure links look clean */
+}
+
+.custom-option:last-of-type {
+  border-bottom: none;
+}
+
+.custom-option:hover {
+  background: #f1f1f1;
+}
+
+/* Ensure the logout button inside the form looks like a link */
+.custom-option form {
+  margin: 0;
+  line-height: 1;
+}
+
+.custom-option button[name="logout"] {
+  display: block;
+  width: 100%;
+  padding: 0;
+  text-align: left;
+  background: none;
+  border: none;
+  color: var(--dropdown-link-color);
+  font-size: 16px;
+  font-weight: normal;
+  cursor: pointer;
+}
+
+.custom-option form:hover button {
+  /* Inherit hover background from the parent .custom-option */
+  background: transparent;
+}
+/* .custom-select-wrapper {
   position: relative;
   display: inline-block;
   user-select: none;
@@ -505,7 +909,7 @@ footer > *,
 
 .custom-option:hover {
   background: #f1f1f1;
-}
+} */
 .wishtable {
   width: 85%;
   margin: 30px auto;

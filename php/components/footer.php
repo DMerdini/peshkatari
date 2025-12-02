@@ -67,4 +67,9 @@
             </div>
         </div>
     </div>
+    <div class="footer-separator"></div>
+
+    <div class="container copyright-row">
+        <p>&copy; <?php echo date("Y"); ?> Peshkatari. All rights reserved.</p>
+    </div>
 </footer>
