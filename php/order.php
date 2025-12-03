@@ -1,13 +1,13 @@
 <?php
-    session_start();
+session_start();
 
-    if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity'] > 7200)) {
-        session_unset();
-        session_destroy();
-        header("Location: login.php");
-        exit;
-    }
-    $_SESSION['last_activity'] = time();
+if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity'] > 7200)) {
+    session_unset();
+    session_destroy();
+    header("Location: login.php");
+    exit;
+}
+$_SESSION['last_activity'] = time();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -54,7 +54,10 @@
                                     ?>
                                 </div>
                             </div>
-                        <?php endforeach; ?> <button type="submit" name="makeorder" class="text-center w-full px-5 py-4 rounded-[100px] bg-indigo-600 text-white font-semibold hover:bg-indigo-700">Order now</button>
+                        <?php endforeach; ?>
+                    </div>
+                    <div class="form-button-wrapper">
+                        <button type="submit" name="makeorder" class="text-center w-full px-5 py-4 rounded-[100px] bg-indigo-600 text-white font-semibold hover:bg-indigo-700">Order now</button>
                     </div>
                 </form>
 
@@ -70,10 +73,10 @@
                 } elseif (!isset($_POST['products']) || empty($_POST['products'])) {
                     echo "<div class='error-message'>Please select at least one product.</div>";
                 } else {
-                    // Get the selected product IDs
+
                     $selectedProductIds = $_POST['products'];
 
-                    // Fetch complete product data for selected products
+
                     $placeholders = implode(',', array_fill(0, count($selectedProductIds), '?'));
                     $stmt = mysqli_prepare($connect, "SELECT * FROM `products` WHERE `prod_id` IN ($placeholders)");
 
@@ -83,7 +86,7 @@
                     mysqli_stmt_execute($stmt);
                     $result = mysqli_stmt_get_result($stmt);
 
-                    // Prepare order data array
+
                     $orderData = [];
                     while ($product = mysqli_fetch_assoc($result)) {
                         $orderData[] = [
@@ -93,23 +96,23 @@
                             "prod_name" => $product['prod_name'],
                             "prod_price" => $product['prod_price'],
                             "prod_cat" => $product['prod_cat'],
-                            "quantity" => 1 // You can modify this if you have quantity selection
+                            "quantity" => 1
                         ];
                     }
 
-                    // Convert to JSON
+
                     $userorder_data = json_encode($orderData);
                     $user_id = $_SESSION['userid'];
 
-                    // Insert into database
+
                     $insertStmt = mysqli_prepare($connect, "INSERT INTO `userorder`(`userorder_userid`, `userorder_data`, `userorder_time`) VALUES (?, ?, NOW())");
                     mysqli_stmt_bind_param($insertStmt, "is", $user_id, $userorder_data);
 
                     if (mysqli_stmt_execute($insertStmt)) {
                         $order_id = mysqli_insert_id($connect);
-                        echo "<div class='success-message'>Order placed successfully! Order ID: #" . $order_id . "</div>";
+                        echo "<div class='success-message'><h3>Order placed successfully! Order ID: #" . $order_id . "</h3></div>";
                     } else {
-                        echo "<div class='error-message'>Error placing order: " . mysqli_error($connect) . "</div>";
+                        echo "<div class='error-message'><h3>Error placing order: " . mysqli_error($connect) . "</h3></div>";
                     }
 
                     mysqli_stmt_close($insertStmt);
