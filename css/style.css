@@ -1126,7 +1126,8 @@ footer a:hover {
 /* Option 2: Products Grid */
 .products-grid {
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
+  /* flex-direction: column; */
   gap: 30px;
 }
 

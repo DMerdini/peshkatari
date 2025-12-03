@@ -1,40 +1,92 @@
 <?php
+session_start();
+include "connection/connect.php";
+
 if (isset($_POST['loginbtn'])) {
     $Enteredusername = $_POST['enteredusername'];
     $Enteredpassword = $_POST['enteredpassword'];
-
-    // 1. Prepare SQL statement to select user by username (DO NOT select password yet)
-    // Using LIMIT 1 is a good practice as usernames should be unique
     $loginquery = "SELECT user_id, user_password, user_username, user_pic, user_status FROM users WHERE user_username = ? LIMIT 1";
-
-    // 2. Initialize and prepare the statement
     $stmt = mysqli_prepare($connect, $loginquery);
-    mysqli_stmt_bind_param($stmt, "s", $Enteredusername); // "s" for string
-
-    // 3. Execute the statement
+    mysqli_stmt_bind_param($stmt, "s", $Enteredusername);
     mysqli_stmt_execute($stmt);
-
-    // 4. Get the result set and data
     $loginresult = mysqli_stmt_get_result($stmt);
-
     if ($loginresult && $userdata = mysqli_fetch_assoc($loginresult)) {
-        // 5. Verify the password using the stored hash
         if (password_verify($Enteredpassword, $userdata['user_password'])) {
-            // Success! Set session variables
             $_SESSION['userid'] = $userdata['user_id'];
             $_SESSION['userusename'] = $userdata['user_username'];
             $_SESSION['userpic'] = $userdata['user_pic'];
             $_SESSION['userstatus'] = $userdata['user_status'];
-
             mysqli_stmt_close($stmt);
             header('location: dashboard.php');
             exit;
         }
     }
-    // Failure (no user found or password didn't match)
     mysqli_stmt_close($stmt);
     header("location: login.php?nouserfound=No user was found");
     exit;
+}
+if (isset($_POST['signupnewuser'])) {
+    $newuserusername = $_POST['signup-username'];
+    $newusersignupemail = $_POST['signup-email'];
+    $rawPassword = $_POST['signup-password'];
+    $newusersignuppassword = password_hash($rawPassword, PASSWORD_DEFAULT);
+    $newuserquery = "INSERT INTO users (user_email, user_password, user_username) VALUES (?, ?, ?)";
+    $stmt = mysqli_prepare($connect, $newuserquery);
+    mysqli_stmt_bind_param($stmt, "sss", $newusersignupemail, $newusersignuppassword, $newuserusername);
+    if (mysqli_stmt_execute($stmt)) {
+
+        echo "<h1>New user created! You can now log in.</h1>";
+    } else {
+        echo "error creating user! " . mysqli_error($connect) . " detected during execution";
+    }
+
+    mysqli_stmt_close($stmt);
+}
+if (isset($_POST['change-password-btn'])) {
+    $currentPassword = $_POST['current-password'];
+    $newPassword = $_POST['new-password'];
+    $confirmPassword = $_POST['confirm-password'];
+    $userId = $_SESSION['userid'];
+
+
+    if ($newPassword !== $confirmPassword) {
+        echo "<p class='error'>New passwords do not match.</p>";
+    } elseif (strlen($newPassword) < 8) {
+        echo "<p class='error'>New password must be at least 8 characters long.</p>";
+    } else {
+
+        $fetchQuery = "SELECT user_password FROM users WHERE user_id = ? LIMIT 1";
+        $stmt = mysqli_prepare($connect, $fetchQuery);
+        mysqli_stmt_bind_param($stmt, "i", $userId);
+        mysqli_stmt_execute($stmt);
+        $result = mysqli_stmt_get_result($stmt);
+
+        if ($result && $user = mysqli_fetch_assoc($result)) {
+            $storedHash = $user['user_password'];
+
+
+            if (password_verify($currentPassword, $storedHash)) {
+
+
+                $newHashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
+                $updateQuery = "UPDATE users SET user_password = ? WHERE user_id = ?";
+                $updateStmt = mysqli_prepare($connect, $updateQuery);
+                mysqli_stmt_bind_param($updateStmt, "si", $newHashedPassword, $userId); // "s" for string, "i" for integer
+
+                if (mysqli_stmt_execute($updateStmt)) {
+                    echo "<p class='success'>Password successfully changed! 🎉</p>";
+                } else {
+                    echo "<p class='error'>Database error during update: " . mysqli_error($connect) . "</p>";
+                }
+                mysqli_stmt_close($updateStmt);
+            } else {
+                echo "<p class='error'>Current password entered is incorrect.</p>";
+            }
+        } else {
+            echo "<p class='error'>User not found.</p>";
+        }
+        mysqli_stmt_close($stmt);
+    }
 }
 ?>
 <!DOCTYPE html>
@@ -79,44 +131,8 @@ if (isset($_POST['loginbtn'])) {
                         </fieldset>
                         <button type="submit" name="loginbtn" class="btn-login">Login</button>
                         <?php
-                        include "connection/connect.php";
-                        if (isset($_POST['loginbtn'])) {
-                            $Enteredusername = $_POST['enteredusername'];
-                            $Enteredpassword = $_POST['enteredpassword'];
 
-                            // 1. Prepare SQL statement to select user by username (DO NOT select password yet)
-                            // Using LIMIT 1 is a good practice as usernames should be unique
-                            $loginquery = "SELECT user_id, user_password, user_username, user_pic, user_status FROM users WHERE user_username = ? LIMIT 1";
 
-                            // 2. Initialize and prepare the statement
-                            $stmt = mysqli_prepare($connect, $loginquery);
-                            mysqli_stmt_bind_param($stmt, "s", $Enteredusername); // "s" for string
-
-                            // 3. Execute the statement
-                            mysqli_stmt_execute($stmt);
-
-                            // 4. Get the result set and data
-                            $loginresult = mysqli_stmt_get_result($stmt);
-
-                            if ($loginresult && $userdata = mysqli_fetch_assoc($loginresult)) {
-                                // 5. Verify the password using the stored hash
-                                if (password_verify($Enteredpassword, $userdata['user_password'])) {
-                                    // Success! Set session variables
-                                    $_SESSION['userid'] = $userdata['user_id'];
-                                    $_SESSION['userusename'] = $userdata['user_username'];
-                                    $_SESSION['userpic'] = $userdata['user_pic'];
-                                    $_SESSION['userstatus'] = $userdata['user_status'];
-
-                                    mysqli_stmt_close($stmt);
-                                    header('location: dashboard.php');
-                                    exit;
-                                }
-                            }
-                            // Failure (no user found or password didn't match)
-                            mysqli_stmt_close($stmt);
-                            header("location: login.php?nouserfound=No user was found");
-                            exit;
-                        }
                         ?>
                     </form>
                 </div>
@@ -143,35 +159,7 @@ if (isset($_POST['loginbtn'])) {
                         </fieldset>
                         <button type="submit" class="btn-signup" name="signupnewuser">Continue</button>
                         <?php
-                        if (isset($_POST['signupnewuser'])) {
-                            $newuserusername = $_POST['signup-username'];
-                            $newusersignupemail = $_POST['signup-email'];
-                            $rawPassword = $_POST['signup-password'];
 
-                            // 1. Securely hash the raw password
-                            $newusersignuppassword = password_hash($rawPassword, PASSWORD_DEFAULT);
-
-                            // 2. Prepare the INSERT statement
-                            $newuserquery = "INSERT INTO users (user_email, user_password, user_username) VALUES (?, ?, ?)";
-
-                            // 3. Initialize and prepare the statement
-                            $stmt = mysqli_prepare($connect, $newuserquery);
-                            mysqli_stmt_bind_param($stmt, "sss", $newusersignupemail, $newusersignuppassword, $newuserusername); // "sss" for three strings
-
-                            // 4. Execute the statement
-                            if (mysqli_stmt_execute($stmt)) {
-                                // Success
-                                echo "<h1>New user created! You can now log in.</h1>";
-                                // Optionally redirect the user to the login form
-                                // header("Location: login.php?success=1");
-                                // exit;
-                            } else {
-                                // Failure
-                                echo "error creating user! " . mysqli_error($connect) . " detected during execution";
-                            }
-
-                            mysqli_stmt_close($stmt);
-                        }
                         ?>
                     </form>
                 </div>
@@ -207,7 +195,7 @@ if (isset($_POST['loginbtn'])) {
                         <button type="submit" class="btn-change-password" name="secure-change-password-btn">Update Password</button>
 
                         <?php
-                        // PHP logic for changing the password will be inserted here
+
                         ?>
                     </form>
                 </div>
@@ -217,55 +205,7 @@ if (isset($_POST['loginbtn'])) {
 
 
     <?php
-    if (isset($_POST['change-password-btn'])) {
-        $currentPassword = $_POST['current-password'];
-        $newPassword = $_POST['new-password'];
-        $confirmPassword = $_POST['confirm-password'];
-        $userId = $_SESSION['userid'];
 
-        // --- Validation Checks ---
-        if ($newPassword !== $confirmPassword) {
-            echo "<p class='error'>New passwords do not match.</p>";
-            // You might want to redirect with a URL parameter here instead of echoing.
-        } elseif (strlen($newPassword) < 8) {
-            echo "<p class='error'>New password must be at least 8 characters long.</p>";
-        } else {
-            // --- 1. Fetch Current Hash using Prepared Statement ---
-            $fetchQuery = "SELECT user_password FROM users WHERE user_id = ? LIMIT 1";
-            $stmt = mysqli_prepare($connect, $fetchQuery);
-            mysqli_stmt_bind_param($stmt, "i", $userId); // "i" for integer
-            mysqli_stmt_execute($stmt);
-            $result = mysqli_stmt_get_result($stmt);
-
-            if ($result && $user = mysqli_fetch_assoc($result)) {
-                $storedHash = $user['user_password'];
-
-                // --- 2. Verify Current Password ---
-                if (password_verify($currentPassword, $storedHash)) {
-
-                    // --- 3. Hash New Password ---
-                    $newHashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
-
-                    // --- 4. Update Database with New Hash using Prepared Statement ---
-                    $updateQuery = "UPDATE users SET user_password = ? WHERE user_id = ?";
-                    $updateStmt = mysqli_prepare($connect, $updateQuery);
-                    mysqli_stmt_bind_param($updateStmt, "si", $newHashedPassword, $userId); // "s" for string, "i" for integer
-
-                    if (mysqli_stmt_execute($updateStmt)) {
-                        echo "<p class='success'>Password successfully changed! 🎉</p>";
-                    } else {
-                        echo "<p class='error'>Database error during update: " . mysqli_error($connect) . "</p>";
-                    }
-                    mysqli_stmt_close($updateStmt);
-                } else {
-                    echo "<p class='error'>Current password entered is incorrect.</p>";
-                }
-            } else {
-                echo "<p class='error'>User not found.</p>";
-            }
-            mysqli_stmt_close($stmt);
-        }
-    }
     include "components/footer.php";
     ?>
 
