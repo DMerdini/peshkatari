@@ -196,6 +196,7 @@ nav button,
 }
 .prodcard {
   display: flex;
+
   flex-direction: column;
   padding: 12px;
   border-radius: 12px;
