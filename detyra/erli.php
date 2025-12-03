@@ -1,1 +1,0 @@
-Ca bone erli
